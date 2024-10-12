@@ -1,8 +1,7 @@
-'use client'
+"use client";
 
-import React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import React from "react";
+import { Input } from "@/components/ui/input";
 
 interface InputFieldProps {
   attribute: string;
@@ -13,9 +12,8 @@ interface InputFieldProps {
 
 const InputField: React.FC<InputFieldProps> = ({
   attribute,
-  label,
   currentValue,
-  handleAttributeChange
+  handleAttributeChange,
 }) => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
@@ -23,18 +21,15 @@ const InputField: React.FC<InputFieldProps> = ({
   };
 
   return (
-    <>
-      <div className="flex flex-col items-start">
-        {/* <Label htmlFor={attribute}>{label}</Label> */}
-        <Input
-          type="text"
-          placeholder='text'
-          value={currentValue}
-          onChange={handleInputChange}
-          className='mt-2'
-        />
-      </div>
-    </>
+    <div className="flex flex-col items-start">
+      <Input
+        type="text"
+        placeholder="text"
+        value={currentValue}
+        onChange={handleInputChange}
+        className="bg-black border-none focus-visible:ring-0 focus-visible:ring-offset-0"
+      />
+    </div>
   );
 };
 
