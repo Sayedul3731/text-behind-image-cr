@@ -278,7 +278,7 @@ const Page = () => {
             <div>
               <div>{/* <Authenticate /> */}</div>
               <img
-                width={600}
+                width={700}
                 height={600}
                 className="size-16 rounded-full bg-slate-500 object-cover"
                 src="https://images.unsplash.com/photo-1633332755192-727a05c4013d?q=80&w=2080&auto=format&fit=crop"
