@@ -153,7 +153,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               }
             />
           </div>
-          <div className="w-[158%] h-[1px] -ml-[10.2%] mt-[70%] bg-gray-500 absolute"></div>
+          <div className="w-[158%] h-[1px] -ml-[8.2%] mt-[70%] bg-gray-500 absolute"></div>
         </div>
         <SliderField
           attribute="rotation"
