@@ -203,6 +203,7 @@ const Page = () => {
                     layout="fill"
                     objectFit="contain"
                     objectPosition="center"
+                    className="overflow-hidden"
                   />
                 ) : (
                   <span className="flex items-center w-full gap-2">
@@ -287,10 +288,10 @@ const Page = () => {
             </div>
           </div>
           {selectedImage ? (
-            <div className="flex flex-row items-start justify-start gap-10 w-[90%] mx-auto min-h-screen p-10">
-              <div className="min-h-[60vh] w-[50vw] rounded-lg relative overflow-hidden">
+            <div className="flex flex-row items-start justify-start gap-40 w-[90%] mx-auto min-h-screen p-10">
+              <div className="min-h-[60vh] w-[40vw] m-10  rounded-lg relative overflow-hidden">
                 {isImageSetupDone ? (
-                  <div>
+                  <div className="bg-red-500">
                     <Image
                       src={selectedImage}
                       alt="Uploaded"
