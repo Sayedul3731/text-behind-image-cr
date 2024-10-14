@@ -41,15 +41,25 @@ const Page = () => {
       fileInputRef.current.click();
     }
   };
-
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-      await setupImage(imageUrl);
+      // Revoke the previous image URL if there is one
+      if (selectedImage) {
+        URL.revokeObjectURL(selectedImage);
+      }
+
+      // Clear the image state immediately
+      setSelectedImage(null);
+
+      // Use a slight delay to ensure the state is updated before setting the new image
+      setTimeout(() => {
+        const imageUrl = URL.createObjectURL(file);
+        setSelectedImage(imageUrl);
+        setupImage(imageUrl);
+      }, 5); // Adjust the delay if necessary
     }
   };
 
@@ -336,7 +346,14 @@ const Page = () => {
                   />
                 )}
               </div>
-              <div className="absolute top-[85%] w-1/3 flex justify-center">
+              <div className="absolute top-[85%] w-1/3 flex justify-center -ml-[3%]">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                  accept=".jpg, .jpeg, .png"
+                />
                 <Button
                   onClick={handleUploadImage}
                   className="bg-gradient-to-r from-[#F9DB43] to-[#FD495E] rounded-md py-8 px-16"
