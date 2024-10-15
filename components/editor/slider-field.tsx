@@ -52,7 +52,7 @@ const SliderField: React.FC<SliderFieldProps> = ({
         value={[currentValue]}
         step={step}
         onValueChange={(value) => handleAttributeChange(attribute, value[0])}
-        className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4 mt-[2px]"
+        className="[&_[role=slider]]:h-4 [&_[role=slider]]:w-4 mt-[2px] bg-gray-500 rounded-sm"
         aria-label={label}
       />
     </>

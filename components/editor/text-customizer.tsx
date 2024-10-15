@@ -12,9 +12,9 @@ import {
 import { MdOutlineCheckBox } from "react-icons/md";
 import { number, string } from "zod";
 import { GiCheckMark } from "react-icons/gi";
-import FontWeightPicker from "./font-weight-picker";
 import { BiSolidDuplicate } from "react-icons/bi";
 import { RiDeleteBinLine } from "react-icons/ri";
+import FontStylePicker from "./font-style-picker";
 
 interface TextCustomizerProps {
   textSet: {
@@ -33,26 +33,37 @@ interface TextCustomizerProps {
     strokeSize: number;
     strokeOpacity: number;
     strokeColor: string;
+    fontStyle: string;
   };
   handleAttributeChange: (id: number, attribute: string, value: any) => void;
   removeTextSet: (id: number) => void;
   duplicateTextSet: (textSet: any) => void;
   className?: string;
+  accordionText?: string;
+  isFront: boolean;
+  setIsFront: any;
 }
 
 const TextCustomizer: React.FC<TextCustomizerProps> = ({
   textSet,
+  isFront,
+  setIsFront,
   handleAttributeChange,
   removeTextSet,
   duplicateTextSet,
 }) => {
-  const [currentFontWeight, setCurrentFontWeight] = useState<string | number>(
-    textSet.fontWeight
+  const [currentFontStyle, setCurrentFontStyle] = useState<string | null>(
+    textSet.fontStyle || ""
   );
+  const handleFontStyleChange = (style: string) => {
+    setCurrentFontStyle(style);
+    handleAttributeChange(textSet.id, "fontStyle", style); // Update the font style in parent component
+  };
+  const [isStroke, setIsStroke] = useState(false);
   return (
     <AccordionItem value={`item-${textSet.id}`} className="w-full text-[12px]">
       <AccordionTrigger>{textSet.text}</AccordionTrigger>
-      <AccordionContent className="py-20 px-14">
+      <AccordionContent className="pt-10 md:pt-20 px-14">
         {/* text heading edit */}
         <div className=" flex justify-between items-center ">
           <div className="w-[60%] bg-gradient-to-r from-[#F9DB43] to-[#FD495E] p-[1px] rounded-md text-[10px]">
@@ -60,18 +71,33 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               attribute="text"
               label="Text"
               currentValue={textSet.text}
+              placeholder="Text Here"
               handleAttributeChange={(attribute, value) =>
                 handleAttributeChange(textSet.id, attribute, value)
               }
             />
           </div>
           <div className="flex items-center w-[28%] gap-3">
-            <div className="w-5 h-5 rounded-sm bg-white flex justify-center items-center">
-              <span className="text-black ml-[0.7px]">
-                <GiCheckMark />
-              </span>
-            </div>
-            <span className="uppercase text-lg">Text front</span>
+            {isFront === true ? (
+              <div
+                onClick={() => setIsFront(false)}
+                className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
+              >
+                <span className="text-black ml-[0.7px]">
+                  <GiCheckMark />
+                </span>
+              </div>
+            ) : (
+              <div
+                onClick={() => setIsFront(true)}
+                className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
+              >
+                <span className="text-black ml-[0.7px]"></span>
+              </div>
+            )}
+            <span className="uppercase text-nowrap text-[13px]">
+              Text front
+            </span>
           </div>
         </div>
         {/* font family and text color  */}
@@ -86,13 +112,12 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
             />
           </div>
           <div className="w-[33%]">
-            <FontWeightPicker
-              currentFontWeight={String(currentFontWeight)}
-              handleFontWeightChange={(newWeight) =>
-                setCurrentFontWeight(newWeight)
-              }
+            <FontStylePicker
+              currentFontStyle={currentFontStyle}
+              handleFontStyleChange={handleFontStyleChange}
             />
           </div>
+
           <div className="flex flex-row items-start justify-start w-[33%]">
             <ColorPicker
               attribute="color"
@@ -153,7 +178,6 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               }
             />
           </div>
-          <div className="w-[158%] h-[1px] -ml-[8.2%] mt-[70%] bg-gray-500 absolute"></div>
         </div>
         <SliderField
           attribute="rotation"
@@ -177,57 +201,79 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
             handleAttributeChange(textSet.id, attribute, value)
           }
         />
+        <div className="border-b-[2px] w-full pt-10 border-gray-500"></div>
         {/* stroke color  */}
         <div className="flex justify-between items-center mt-16 ">
           <div className="flex items-center gap-5 w-1/2 ">
-            <div className="w-5 h-5 rounded-sm bg-white flex justify-center items-center">
-              <span className="text-black ml-[0.7px]">
-                <GiCheckMark />
-              </span>
-            </div>
+            {isStroke === true ? (
+              <div
+                onClick={() => setIsStroke(false)}
+                className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
+              >
+                <span className="text-black ml-[0.7px]">
+                  <GiCheckMark />
+                </span>
+              </div>
+            ) : (
+              <div
+                onClick={() => setIsStroke(true)}
+                className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
+              >
+                <span className="text-black ml-[0.7px]"></span>
+              </div>
+            )}
             <span>Stroke</span>
           </div>
-          <div className="flex justify-center items-center gap-2  w-1/2">
-            <span className="text-nowrap">Stroke Color</span>
-            <ColorPicker
-              attribute="strokeColor"
-              label=""
-              currentColor={textSet.strokeColor}
-              handleAttributeChange={(attribute, value) =>
-                handleAttributeChange(textSet.id, attribute, value)
-              }
-            />
-          </div>
+          {isStroke === true && (
+            <div className="flex justify-center items-center gap-2  w-1/2">
+              <span className="text-nowrap">Stroke Color</span>
+              <ColorPicker
+                attribute="strokeColor"
+                label=""
+                currentColor={textSet.strokeColor}
+                handleAttributeChange={(attribute, value) =>
+                  handleAttributeChange(textSet.id, attribute, value)
+                }
+              />
+            </div>
+          )}
         </div>
-        <div className="flex justify-between items-center gap-5 ">
-          <div className=" w-1/2">
-            <SliderField
-              attribute="strokeSize"
-              label="Stroke Size"
-              min={0}
-              max={20}
-              step={0.5}
-              currentValue={textSet.strokeSize}
-              handleAttributeChange={(attribute, value) =>
-                handleAttributeChange(textSet.id, attribute, value)
-              }
-            />
-          </div>
-          <div className=" w-1/2">
-            <SliderField
-              attribute="strokeOpacity"
-              label="Stroke Opacity"
-              min={0}
-              max={1}
-              step={0.01}
-              currentValue={textSet.strokeOpacity}
-              handleAttributeChange={(attribute, value) =>
-                handleAttributeChange(textSet.id, attribute, value)
-              }
-            />
-          </div>
+        <div className="min-h-[100px]">
+          {" "}
+          {isStroke === true ? (
+            <div className="flex justify-between items-center gap-5 ">
+              <div className=" w-1/2">
+                <SliderField
+                  attribute="strokeSize"
+                  label="Stroke Size"
+                  min={0}
+                  max={20}
+                  step={0.5}
+                  currentValue={textSet.strokeSize}
+                  handleAttributeChange={(attribute, value) =>
+                    handleAttributeChange(textSet.id, attribute, value)
+                  }
+                />
+              </div>
+              <div className=" w-1/2">
+                <SliderField
+                  attribute="strokeOpacity"
+                  label="Stroke Opacity"
+                  min={0}
+                  max={95}
+                  step={5}
+                  currentValue={textSet.strokeOpacity}
+                  handleAttributeChange={(attribute, value) =>
+                    handleAttributeChange(textSet.id, attribute, value)
+                  }
+                />
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
         </div>
-        <div className="flex flex-row gap-12 my-8 absolute top-[91.5%] left-[45%] ">
+        <div className="flex flex-row pr-20 lg:ml-[12rem] gap-12  z-50 top-[92%]">
           <div className="bg-gradient-to-r from-[#F9DB43] to-[#FD495E] rounded-md">
             <Button
               onClick={() => duplicateTextSet(textSet)}

@@ -18,41 +18,51 @@ import {
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 
-const fontWeights = [
-  "100 (Thin)",
-  "200 (Extra Light)",
-  "300 (Light)",
-  "400 (Regular)",
-  "500 (Medium)",
-  "600 (Semi Bold)",
-  "700 (Bold)",
-  "800 (Extra Bold)",
-  "900 (Black)",
+const fontStyles = [
+  "Normal",
+  "Italic",
+  "Oblique",
+  "Small Caps",
+  "All Caps",
+  "Underline",
+  "Strikethrough",
+  "Bold",
+  "Light",
+  "Medium",
+  "Condensed",
+  "Expanded",
+  "Shadow",
+  "Outline",
+  "Superscript",
+  "Subscript",
+  "Highlight",
+  "Raised",
+  "Lowered",
 ];
 
-interface FontWeightPickerProps {
-  currentFontWeight: string;
-  handleFontWeightChange: (weight: string) => void;
+interface FontStylePickerProps {
+  currentFontStyle: string | null;
+  handleFontStyleChange: (style: string) => void;
 }
 
-const FontWeightPicker: React.FC<FontWeightPickerProps> = ({
-  currentFontWeight,
-  handleFontWeightChange,
+const FontStylePicker: React.FC<FontStylePickerProps> = ({
+  currentFontStyle,
+  handleFontStyleChange,
 }) => {
   return (
     <div className="flex flex-col space-y-4">
       <Popover>
         <div className="flex flex-col items-start justify-start">
-          <Label>Font Weight</Label>
+          <Label>Font Style</Label>
           <PopoverTrigger asChild>
-            <div className="w-full mt-1 bg-gradient-to-r from-[#F9DB43] to-[#FD495E] p-[1px]  rounded-md">
+            <div className="w-full mt-1 bg-gradient-to-r from-[#F9DB43] to-[#FD495E] p-[1px] rounded-md">
               <div
                 className={cn(
                   "w-[99.8%] justify-between border-none p-2 flex rounded-md bg-black mx-auto",
-                  !currentFontWeight && "text-muted-foreground"
+                  !currentFontStyle && "text-muted-foreground"
                 )}
               >
-                {currentFontWeight || "Select font weight"}
+                {currentFontStyle || "Select font style"}
                 <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-100" />
               </div>
             </div>
@@ -60,24 +70,22 @@ const FontWeightPicker: React.FC<FontWeightPickerProps> = ({
         </div>
         <PopoverContent className="w-full p-0">
           <Command>
-            <CommandInput placeholder="Search font weight..." className="h-9" />
+            <CommandInput placeholder="Search font style..." className="h-9" />
             <CommandList>
-              <CommandEmpty>No font weight found.</CommandEmpty>
+              <CommandEmpty>No font style found.</CommandEmpty>
               <CommandGroup>
-                {fontWeights.map((weight) => (
+                {fontStyles.map((style) => (
                   <CommandItem
-                    value={weight}
-                    key={weight}
-                    onSelect={() => handleFontWeightChange(weight)}
+                    value={style}
+                    key={style}
+                    onSelect={() => handleFontStyleChange(style)}
                     className="hover:cursor-pointer"
                   >
-                    {weight}
+                    {style}
                     <CheckIcon
                       className={cn(
                         "ml-auto h-4 w-4",
-                        weight === currentFontWeight
-                          ? "opacity-100"
-                          : "opacity-0"
+                        style === currentFontStyle ? "opacity-100" : "opacity-0"
                       )}
                     />
                   </CommandItem>
@@ -91,4 +99,4 @@ const FontWeightPicker: React.FC<FontWeightPickerProps> = ({
   );
 };
 
-export default FontWeightPicker;
+export default FontStylePicker;

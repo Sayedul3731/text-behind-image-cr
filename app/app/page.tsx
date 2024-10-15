@@ -18,8 +18,29 @@ import { LuUpload } from "react-icons/lu";
 import { AiOutlineEye } from "react-icons/ai";
 import { AiOutlineEyeInvisible } from "react-icons/ai";
 import { CiSaveDown2 } from "react-icons/ci";
+import "./page.css";
 
 const Page = () => {
+  type TextSet = {
+    id: number;
+    text: string;
+    fontFamily: string;
+    top: number;
+    left: number;
+    color: string;
+    strokeColor: string;
+    fontSize: number;
+    fontWeight: number;
+    opacity: number;
+    shadowColor: string;
+    shadowSize: number;
+    rotation: number;
+    strokeSize: number;
+    strokeOpacity: number;
+    fontStyle: string;
+    visible?: boolean;
+  };
+
   const { user } = useUser();
   const { session } = useSessionContext();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -27,39 +48,68 @@ const Page = () => {
   const [removedBgImageUrl, setRemovedBgImageUrl] = useState<string | null>(
     null
   );
-  const [textSets, setTextSets] = useState<Array<any>>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  // const [textSets, setTextSets] = useState<Array<any>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [openAccordion, setOpenAccordion] = useState<number | null>(null);
+  const [isFront, setIsFront] = useState<boolean>(false);
+  const [textSets, setTextSets] = useState<TextSet[]>([
+    {
+      id: 1,
+      text: "Layer - 1",
+      fontFamily: "Inter",
+      top: 0,
+      left: 0,
+      color: "#F9DB43",
+      strokeColor: "red",
+      fontSize: 200,
+      fontWeight: 800,
+      opacity: 1,
+      shadowColor: "rgba(0, 0, 0, 0.8)",
+      shadowSize: 4,
+      rotation: 0,
+      strokeSize: 2,
+      strokeOpacity: 0.5,
+      fontStyle: "normal",
+    },
+  ]);
+  const initialTextSets: TextSet[] =
+    textSets.map((textSet) => ({
+      ...textSet,
+      visible: false,
+    })) || [];
 
-  const handleAccordionToggle = (id: number) => {
-    setOpenAccordion((prev) => (prev === id ? null : id));
+  const handleToggleVisibility = (id: number): void => {
+    const updatedTextSets = textSets.map((textSet) =>
+      textSet.id === id ? { ...textSet, visible: !textSet.visible } : textSet
+    );
+    setTextSets(updatedTextSets);
   };
-
+  console.log(textSets);
   const handleUploadImage = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Revoke the previous image URL if there is one
       if (selectedImage) {
         URL.revokeObjectURL(selectedImage);
       }
-
-      // Clear the image state immediately
       setSelectedImage(null);
+      setIsLoading(true);
 
-      // Use a slight delay to ensure the state is updated before setting the new image
+      const imageUrl = URL.createObjectURL(file);
+      console.log(imageUrl);
       setTimeout(() => {
-        const imageUrl = URL.createObjectURL(file);
         setSelectedImage(imageUrl);
+        setIsLoading(false);
         setupImage(imageUrl);
-      }, 5); // Adjust the delay if necessary
+      }, 100);
     }
   };
 
@@ -76,16 +126,17 @@ const Page = () => {
 
   const addNewTextSet = () => {
     const newId = Math.max(...textSets.map((set) => set.id), 0) + 1;
+    const newLayerName = `Layer - ${newId}`;
     setTextSets((prev) => [
       ...prev,
       {
         id: newId,
-        text: "Layer - 1",
+        text: newLayerName,
         fontFamily: "Inter",
         top: 0,
         left: 0,
-        color: "white",
-        strokeColor: "#ff0000",
+        color: "#F9DB43",
+        strokeColor: "red",
         fontSize: 200,
         fontWeight: 800,
         opacity: 1,
@@ -94,6 +145,7 @@ const Page = () => {
         rotation: 0,
         strokeSize: 2,
         strokeOpacity: 0.5,
+        fontStyle: "normal",
       },
     ]);
   };
@@ -125,35 +177,74 @@ const Page = () => {
     bgImg.onload = () => {
       canvas.width = bgImg.width;
       canvas.height = bgImg.height;
-
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
       textSets.forEach((textSet) => {
         ctx.save();
-        ctx.font = `${textSet.fontWeight} ${textSet.fontSize * 3}px ${
-          textSet.fontFamily
-        }`;
+
+        // Apply fontStyle and fontWeight
+        const fontStyle = textSet.fontStyle.toLowerCase();
+        const fontWeight = ["bold", "light", "medium"].includes(fontStyle)
+          ? fontStyle
+          : textSet.fontWeight;
+        ctx.font = `${
+          fontStyle === "italic" ? "italic" : "normal"
+        } ${fontWeight} ${textSet.fontSize * 3}px ${textSet.fontFamily}`;
+
+        // Set fill color and opacity
         ctx.fillStyle = textSet.color;
         ctx.globalAlpha = textSet.opacity;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
+        // Calculate position
         const x = (canvas.width * (textSet.left + 50)) / 100;
         const y = (canvas.height * (50 - textSet.top)) / 100;
 
+        // Transform canvas for rotation and text drawing
         ctx.translate(x, y);
         ctx.rotate((textSet.rotation * Math.PI) / 180);
         ctx.fillText(textSet.text, 0, 0);
-        if (textSet.strokeSize > 0) {
-          ctx.lineWidth = textSet.strokeSize;
+        // Handle underline and strikethrough
+        if (textSet.fontStyle.toLowerCase() === "underline") {
+          ctx.fillText(textSet.text, 0, 0);
+          const textWidth = ctx.measureText(textSet.text).width;
+          ctx.beginPath();
+          ctx.moveTo(-textWidth / 2, 5); // Underline position
+          ctx.lineTo(textWidth / 2, 5);
           ctx.strokeStyle = textSet.color;
-          ctx.strokeStyle = textSet.strokeColor;
-          ctx.globalAlpha = textSet.strokeOpacity;
-          ctx.strokeText(textSet.text, textSet.left, textSet.top);
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        } else if (textSet.fontStyle.toLowerCase() === "strikethrough") {
+          ctx.fillText(textSet.text, 0, 0);
+          const textWidth = ctx.measureText(textSet.text).width;
+          ctx.beginPath();
+          ctx.moveTo(-textWidth / 2, 0); // Strikethrough position
+          ctx.lineTo(textWidth / 2, 0);
+          ctx.strokeStyle = textSet.color;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        } else {
+          // Draw the text normally for other styles
+          ctx.fillText(textSet.text, 0, 0);
         }
 
-        ctx.globalAlpha = textSet.opacity;
+        // Optional: Handle shadow effect
+        if (textSet.fontStyle.toLowerCase() === "shadow") {
+          ctx.shadowColor = textSet.color;
+          ctx.shadowBlur = 10; // Adjust the blur as needed
+          ctx.fillText(textSet.text, 0, 0);
+        }
 
-        ctx.fillText(textSet.text, 0, 0);
+        // Handle stroke text if needed
+        if (textSet.strokeSize > 0) {
+          ctx.lineWidth = textSet.strokeSize;
+          ctx.strokeStyle = textSet.strokeColor;
+          ctx.globalAlpha = textSet.strokeOpacity;
+          ctx.strokeText(textSet.text, 0, 0);
+        }
+
         ctx.restore();
       });
 
@@ -179,12 +270,12 @@ const Page = () => {
       link.click();
     }
   };
-
+  console.log(textSets);
   return (
     <>
       {user && session && session.user ? (
         <div className="flex flex-col min-h-screen">
-          <div className="flex flex-row items-center justify-between p-5 px-10">
+          {/* <div className="flex flex-row items-center justify-between p-5 px-10">
             <h2 className="text-2xl font-semibold tracking-tight">
               Text behind image editor
             </h2>
@@ -278,14 +369,18 @@ const Page = () => {
                 Welcome, get started by uploading an image!
               </h2>
             </div>
-          )}
+          )} */}
         </div>
       ) : (
-        <div className="bg-black w-full min-h-screen text-white">
+        <div className="bg-black w-full min-h-screen text-white relative">
+          <div className=" inset-0 ">
+            <div className="absolute w-[30%] h-[50%] inset-0  bg-gradient-to-br from-[#FACF4680] rounded-br-full  opacity-5"></div>
+          </div>
           <div className="flex justify-between items-center px-20 py-10">
-            <div>
-              <span className="text-7xl">Logo</span>
+            <div className="relative">
+              <span className="text-7xl logo-text relative z-10">Logo</span>
             </div>
+
             <div>
               <div>{/* <Authenticate /> */}</div>
               <img
@@ -298,62 +393,81 @@ const Page = () => {
             </div>
           </div>
           {selectedImage ? (
-            <div className="flex flex-row items-start justify-start gap-40 w-[90%] mx-auto min-h-screen p-10">
-              <div className="min-h-[60vh] w-[40vw] m-10  rounded-lg relative overflow-hidden">
-                {isImageSetupDone ? (
-                  <div className="bg-red-500">
+            <div className="flex flex-col md:flex-row items-start justify-start gap-40 w-[90%] mx-auto min-h-screen p-10">
+              {/* img div here  */}
+              <div className="w-[45vw] h-[300px] md:w-[500px] md:h-[400px] lg:w-[600px] lg:h-[500px] ml-[16%] md:ml-[0%]  rounded-lg relative overflow-hidden ">
+                <div className="">
+                  {isImageSetupDone ? (
+                    <div className="w-full h-full ">
+                      <Image
+                        src={selectedImage}
+                        alt="Uploaded"
+                        layout="fill"
+                        objectFit="contain"
+                        objectPosition="center"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <span className="flex items-center w-full h-full flex justify-center items-center border gap-2">
+                      <ReloadIcon className="animate-spin" /> Loading, please
+                      wait
+                    </span>
+                  )}
+                  {isImageSetupDone &&
+                    textSets.map((textSet) => (
+                      <div
+                        key={textSet.id}
+                        style={{
+                          position: "absolute",
+                          top: `${50 - textSet.top}%`,
+                          left: `${textSet.left + 50}%`,
+                          transform: `translate(-50%, -50%) rotate(${textSet.rotation}deg)`,
+                          color: textSet.color,
+                          textAlign: "center",
+                          fontSize: `${textSet.fontSize}px`,
+                          fontWeight: textSet.fontWeight,
+                          fontFamily: textSet.fontFamily,
+                          opacity: textSet.opacity,
+                          overflow: "hidden",
+                          fontStyle: textSet.fontStyle,
+                          zIndex: isFront === true ? 50 : undefined,
+                          strokeColor: textSet.strokeColor
+                            ? textSet.strokeColor
+                            : undefined,
+                          strokeSize: textSet.strokeSize,
+                          stopOpacity: textSet.strokeOpacity,
+                          // maxWidth: `${imgWidth * 0.9}px`,
+                        }}
+                      >
+                        {textSet.visible ? textSet.text : ""}
+                      </div>
+                    ))}
+                  {removedBgImageUrl && (
                     <Image
-                      src={selectedImage}
-                      alt="Uploaded"
+                      src={removedBgImageUrl}
+                      alt="Removed bg"
                       layout="fill"
                       objectFit="contain"
                       objectPosition="center"
+                      className="absolute top-0 left-0 w-full h-full"
                     />
-                  </div>
+                  )}
+                </div>
+              </div>
+              <div className="absolute top-[30%] ml-[20%]   md:top-[50%] lg:top-[65%] w-1/3 flex justify-center md:-ml-[3%] lg:-ml-[7%]">
+                {isLoading ? (
+                  <p>Loading...</p>
                 ) : (
-                  <span className="flex items-center w-full gap-2">
-                    <ReloadIcon className="animate-spin" /> Loading, please wait
-                  </span>
-                )}
-                {isImageSetupDone &&
-                  textSets.map((textSet) => (
-                    <div
-                      key={textSet.id}
-                      style={{
-                        position: "absolute",
-                        top: `${50 - textSet.top}%`,
-                        left: `${textSet.left + 50}%`,
-                        transform: `translate(-50%, -50%) rotate(${textSet.rotation}deg)`,
-                        color: textSet.color,
-                        textAlign: "center",
-                        fontSize: `${textSet.fontSize}px`,
-                        fontWeight: textSet.fontWeight,
-                        fontFamily: textSet.fontFamily,
-                        opacity: textSet.opacity,
-                      }}
-                    >
-                      {textSet.text}
-                    </div>
-                  ))}
-                {removedBgImageUrl && (
-                  <Image
-                    src={removedBgImageUrl}
-                    alt="Removed bg"
-                    layout="fill"
-                    objectFit="contain"
-                    objectPosition="center"
-                    className="absolute top-0 left-0 w-full h-full"
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                    accept=".jpg, .jpeg, .png"
                   />
                 )}
-              </div>
-              <div className="absolute top-[85%] w-1/3 flex justify-center -ml-[3%]">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                  accept=".jpg, .jpeg, .png"
-                />
+
                 <Button
                   onClick={handleUploadImage}
                   className="bg-gradient-to-r from-[#F9DB43] to-[#FD495E] rounded-md py-8 px-16"
@@ -361,10 +475,10 @@ const Page = () => {
                   <LuUpload /> Add New Picture
                 </Button>
               </div>
-
-              <div className="flex flex-col w-full -mt-16">
+              {/* text content here  */}
+              <div className="flex flex-col w-full md:-mt-16">
                 <div className="flex justify-center items-center min-h-[100px]">
-                  <div className="bg-gradient-to-r from-[#F9DB43] to-[#FD495E] rounded-md w-2/5 h-20">
+                  <div className="bg-gradient-to-r from-[#F9DB43] to-[#FD495E] rounded-md w-3/5 md:w-2/5 md:h-20">
                     <Button
                       className="py-8 bg-black text-white w-[99%] h-[95%]"
                       onClick={addNewTextSet}
@@ -377,17 +491,22 @@ const Page = () => {
                   {textSets.map((textSet) => (
                     <div
                       key={textSet.id}
-                      className="relative cursor-pointer w-1/2"
-                      onClick={() => handleAccordionToggle(textSet.id)}
+                      className="flex gap-3 cursor-pointer w-full md:w-1/2"
                     >
-                      <span className="absolute -left-7 top-4 text-xl">
-                        {openAccordion === textSet.id ? (
+                      <span
+                        onClick={() => handleToggleVisibility(textSet.id)}
+                        className="text-xl mt-3.5"
+                      >
+                        {textSet.visible ? (
                           <AiOutlineEye />
                         ) : (
                           <AiOutlineEyeInvisible />
                         )}
                       </span>
+
                       <TextCustomizer
+                        isFront={isFront}
+                        setIsFront={setIsFront}
                         textSet={textSet}
                         handleAttributeChange={handleAttributeChange}
                         removeTextSet={removeTextSet}
@@ -399,9 +518,7 @@ const Page = () => {
 
                 <canvas ref={canvasRef} style={{ display: "none" }} />
                 <div
-                  className={`flex justify-center items-center pt-16 ${
-                    openAccordion ? "-ml-[10%]" : "-ml-[20%]"
-                  } transition-all duration-300`}
+                  className={`flex justify-center items-center pt-16  transition-all duration-300 lg:-ml-[15%] mt-10 `}
                 >
                   <Button
                     onClick={saveCompositeImage}
@@ -414,7 +531,7 @@ const Page = () => {
             </div>
           ) : (
             <div className="flex justify-center items-center min-h-[70vh]">
-              <div className="flex justify-center items-center w-[40vw] h-[50vh] rounded-md border-2 border-dashed border-[#F9DB43]">
+              <div className="flex justify-center items-center w-[60vw] h-[25vh] md:w-[70vw] md:h-[40vh] lg:w-[40vw] lg:h-[50vh] rounded-md border-2 border-dashed border-[#F9DB43]">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -425,7 +542,7 @@ const Page = () => {
 
                 <Button
                   onClick={handleUploadImage}
-                  className="bg-gradient-to-r from-[#F9DB43] to-[#FD495E] rounded-md px-14 py-8"
+                  className="bg-gradient-to-r from-[#F9DB43] to-[#FD495E] rounded-md px-14 py-8 cursor-pointer"
                 >
                   <LuUpload /> Add Picture
                 </Button>

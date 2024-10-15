@@ -4,6 +4,7 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 
 interface InputFieldProps {
+  placeholder: string;
   attribute: string;
   label: string;
   currentValue: string;
@@ -11,6 +12,7 @@ interface InputFieldProps {
 }
 
 const InputField: React.FC<InputFieldProps> = ({
+  placeholder,
   attribute,
   currentValue,
   handleAttributeChange,
@@ -19,12 +21,12 @@ const InputField: React.FC<InputFieldProps> = ({
     const value = event.target.value;
     handleAttributeChange(attribute, value);
   };
-
+  console.log("current value", currentValue);
   return (
     <div className="flex flex-col items-start">
       <Input
         type="text"
-        placeholder="text"
+        placeholder={placeholder}
         value={currentValue}
         onChange={handleInputChange}
         className="bg-black border-none focus-visible:ring-0 focus-visible:ring-offset-0"
