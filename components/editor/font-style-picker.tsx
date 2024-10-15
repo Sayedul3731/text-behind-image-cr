@@ -18,27 +18,7 @@ import {
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 
-const fontStyles = [
-  "Normal",
-  "Italic",
-  "Oblique",
-  "Small Caps",
-  "All Caps",
-  "Underline",
-  "Strikethrough",
-  "Bold",
-  "Light",
-  "Medium",
-  "Condensed",
-  "Expanded",
-  "Shadow",
-  "Outline",
-  "Superscript",
-  "Subscript",
-  "Highlight",
-  "Raised",
-  "Lowered",
-];
+const fontStyles = ["Regular", "Italic", "Bold"];
 
 interface FontStylePickerProps {
   currentFontStyle: string | null;

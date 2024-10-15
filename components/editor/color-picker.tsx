@@ -45,12 +45,12 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="flex flex-col items-center justify-center w-full"
+            className="flex flex-col items-center justify-center w-full lg:mt-[342px] lg:ml-[100%]"
             side="left"
-            sideOffset={10}
+            sideOffset={1}
           >
             <Tabs defaultValue="colorPicker">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 ">
                 <TabsTrigger value="colorPicker">🎨</TabsTrigger>
                 <TabsTrigger value="suggestions">⚡️</TabsTrigger>
               </TabsList>

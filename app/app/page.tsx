@@ -18,6 +18,8 @@ import { LuUpload } from "react-icons/lu";
 import { AiOutlineEye } from "react-icons/ai";
 import { AiOutlineEyeInvisible } from "react-icons/ai";
 import { CiSaveDown2 } from "react-icons/ci";
+import Player from "lottie-react";
+import loadingAnimation from "../../public/animation.json";
 import "./page.css";
 
 const Page = () => {
@@ -376,9 +378,11 @@ const Page = () => {
           <div className=" inset-0 ">
             <div className="absolute w-[30%] h-[50%] inset-0  bg-gradient-to-br from-[#FACF4680] rounded-br-full  opacity-5"></div>
           </div>
-          <div className="flex justify-between items-center px-20 py-10">
+          <div className="flex justify-between items-center px-5 md:px-20 py-10">
             <div className="relative">
-              <span className="text-7xl logo-text relative z-10">Logo</span>
+              <span className="text-4xl md:text-7xl logo-text relative z-10">
+                Logo
+              </span>
             </div>
 
             <div>
@@ -409,10 +413,16 @@ const Page = () => {
                       />
                     </div>
                   ) : (
-                    <span className="flex items-center w-full h-full flex justify-center items-center border gap-2">
-                      <ReloadIcon className="animate-spin" /> Loading, please
-                      wait
-                    </span>
+                    <div className="w-[400px] h-[400px]">
+                      <span className="flex items-center w-full h-full justify-center gap-2">
+                        <Player
+                          autoplay
+                          loop
+                          animationData={loadingAnimation} // Use animationData instead of src
+                          style={{ height: "200px", width: "200px" }} // Adjust the size as needed
+                        />
+                      </span>
+                    </div>
                   )}
                   {isImageSetupDone &&
                     textSets.map((textSet) => (
@@ -451,7 +461,7 @@ const Page = () => {
                   )}
                 </div>
               </div>
-              <div className="absolute top-[30%] ml-[20%]   md:top-[50%] lg:top-[65%] w-1/3 flex justify-center md:-ml-[3%] lg:-ml-[7%]">
+              <div className="absolute top-[45%] ml-[20%]   md:top-[50%] lg:top-[65%] w-1/3 flex justify-center md:-ml-[3%] lg:-ml-[7%]">
                 {isLoading ? (
                   <p>Loading...</p>
                 ) : (
@@ -527,7 +537,7 @@ const Page = () => {
             </div>
           ) : (
             <div className="flex justify-center items-center min-h-[70vh]">
-              <div className="flex justify-center items-center w-[60vw] h-[25vh] md:w-[70vw] md:h-[40vh] lg:w-[40vw] lg:h-[50vh] rounded-md border-2 border-dashed border-[#F9DB43]">
+              <div className="flex justify-center items-center w-[80vw] h-[25vh] md:w-[70vw] md:h-[40vh] lg:w-[40vw] lg:h-[50vh] rounded-md border-2 border-dashed border-[#F9DB43]">
                 <input
                   type="file"
                   ref={fileInputRef}
