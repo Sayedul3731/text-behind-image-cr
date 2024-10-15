@@ -432,10 +432,6 @@ const Page = () => {
                           overflow: "hidden",
                           fontStyle: textSet.fontStyle,
                           zIndex: isFront === true ? 50 : undefined,
-                          strokeColor: textSet.strokeColor
-                            ? textSet.strokeColor
-                            : undefined,
-                          strokeSize: textSet.strokeSize,
                           stopOpacity: textSet.strokeOpacity,
                           // maxWidth: `${imgWidth * 0.9}px`,
                         }}
