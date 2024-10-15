@@ -366,7 +366,7 @@ const Page = () => {
           ) : (
             <div className="flex items-center justify-center min-h-screen w-full">
               <h2 className="text-xl font-semibold">
-                Welcome, get started by uploading an image!
+                Welcome, get started by uploading an image
               </h2>
             </div>
           )} */}
