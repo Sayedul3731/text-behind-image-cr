@@ -21,6 +21,7 @@ import { CiSaveDown2 } from "react-icons/ci";
 import Player from "lottie-react";
 import loadingAnimation from "../../public/animation.json";
 import "./page.css";
+import logo from "../../public/Logo.webp";
 
 const Page = () => {
   type TextSet = {
@@ -177,15 +178,18 @@ const Page = () => {
     const bgImg = new (window as any).Image();
     bgImg.crossOrigin = "anonymous";
     bgImg.onload = () => {
+      // Set canvas size to match the background image
       canvas.width = bgImg.width;
       canvas.height = bgImg.height;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // Draw the background image
       ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
 
+      // Loop through each textSet and draw the text on the canvas
       textSets.forEach((textSet) => {
         ctx.save();
 
-        // Apply fontStyle and fontWeight
+        // Apply font settings
         const fontStyle = textSet.fontStyle.toLowerCase();
         const fontWeight = ["bold", "light", "medium"].includes(fontStyle)
           ? fontStyle
@@ -197,49 +201,46 @@ const Page = () => {
         // Set fill color and opacity
         ctx.fillStyle = textSet.color;
         ctx.globalAlpha = textSet.opacity;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        ctx.textAlign = "center"; // Center-align the text
+        ctx.textBaseline = "middle"; // Set the text baseline to middle
 
-        // Calculate position
+        // Calculate the position without clipping the text
         const x = (canvas.width * (textSet.left + 50)) / 100;
-        const y = (canvas.height * (50 - textSet.top)) / 100;
+        const y = (canvas.height * (30 - textSet.top)) / 100;
 
-        // Transform canvas for rotation and text drawing
+        // Rotate text around its own center
         ctx.translate(x, y);
         ctx.rotate((textSet.rotation * Math.PI) / 180);
+
+        // Draw the main text
         ctx.fillText(textSet.text, 0, 0);
+
         // Handle underline and strikethrough
+        const textWidth = ctx.measureText(textSet.text).width;
         if (textSet.fontStyle.toLowerCase() === "underline") {
-          ctx.fillText(textSet.text, 0, 0);
-          const textWidth = ctx.measureText(textSet.text).width;
           ctx.beginPath();
-          ctx.moveTo(-textWidth / 2, 5); // Underline position
+          ctx.moveTo(-textWidth / 2, 5); // Adjust for the underline position
           ctx.lineTo(textWidth / 2, 5);
           ctx.strokeStyle = textSet.color;
           ctx.lineWidth = 1;
           ctx.stroke();
         } else if (textSet.fontStyle.toLowerCase() === "strikethrough") {
-          ctx.fillText(textSet.text, 0, 0);
-          const textWidth = ctx.measureText(textSet.text).width;
           ctx.beginPath();
-          ctx.moveTo(-textWidth / 2, 0); // Strikethrough position
+          ctx.moveTo(-textWidth / 2, 0); // Adjust for the strikethrough position
           ctx.lineTo(textWidth / 2, 0);
           ctx.strokeStyle = textSet.color;
           ctx.lineWidth = 1;
           ctx.stroke();
-        } else {
-          // Draw the text normally for other styles
-          ctx.fillText(textSet.text, 0, 0);
         }
 
-        // Optional: Handle shadow effect
+        // Draw shadow if enabled
         if (textSet.fontStyle.toLowerCase() === "shadow") {
           ctx.shadowColor = textSet.color;
-          ctx.shadowBlur = 10; // Adjust the blur as needed
+          ctx.shadowBlur = 10;
           ctx.fillText(textSet.text, 0, 0);
         }
 
-        // Handle stroke text if needed
+        // Draw stroke if specified
         if (textSet.strokeSize > 0) {
           ctx.lineWidth = textSet.strokeSize;
           ctx.strokeStyle = textSet.strokeColor;
@@ -250,6 +251,7 @@ const Page = () => {
         ctx.restore();
       });
 
+      // Draw the removed background image on top if available
       if (removedBgImageUrl) {
         const removedBgImg = new (window as any).Image();
         removedBgImg.crossOrigin = "anonymous";
@@ -267,12 +269,12 @@ const Page = () => {
     function triggerDownload() {
       const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement("a");
-      link.download = "text-behind-image.png";
+      link.download = "easy-text-behind.png";
       link.href = dataUrl;
       link.click();
     }
   };
-  console.log(textSets);
+
   return (
     <>
       {user && session && session.user ? (
@@ -380,8 +382,14 @@ const Page = () => {
           </div>
           <div className="flex justify-between items-center px-5 md:px-20 py-10">
             <div className="relative">
-              <span className="text-4xl md:text-7xl logo-text relative z-10">
-                Logo
+              <span className="text-xl md:text-3xl logo-text relative z-10">
+                <Image
+                  src={logo}
+                  width={400}
+                  height={600}
+                  alt="logo"
+                  className="w-[250px] md:w-[350px]"
+                ></Image>
               </span>
             </div>
 
