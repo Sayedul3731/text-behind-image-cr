@@ -34,34 +34,50 @@ interface TextCustomizerProps {
     strokeOpacity: number;
     strokeColor: string;
     fontStyle: string;
+    zIndex: number;
+    isFront: boolean;
+    isStroke: boolean;
   };
   handleAttributeChange: (id: number, attribute: string, value: any) => void;
   removeTextSet: (id: number) => void;
   duplicateTextSet: (textSet: any) => void;
   className?: string;
   accordionText?: string;
-  isFront: boolean;
-  setIsFront: any;
+  changeZIndex: (id: number, newZIndex: number, isFront: boolean) => void;
+  toggleStroke: (id: number, isStroke: boolean) => void;
+  index: number;
 }
 
 const TextCustomizer: React.FC<TextCustomizerProps> = ({
   textSet,
-  isFront,
-  setIsFront,
   handleAttributeChange,
   removeTextSet,
   duplicateTextSet,
+  changeZIndex,
+  toggleStroke,
+  index,
 }) => {
   const [currentFontStyle, setCurrentFontStyle] = useState<string | null>(
     textSet.fontStyle || ""
   );
+  const handleTextUp = (id: number, zIndex: number, isFront: boolean) => {
+    changeZIndex(id, zIndex, isFront);
+  };
+  const handleTextBelow = (id: number, zIndex: number, isFront: boolean) => {
+    changeZIndex(id, zIndex, isFront);
+  };
   const handleFontStyleChange = (style: string) => {
     setCurrentFontStyle(style);
     handleAttributeChange(textSet.id, "fontStyle", style); // Update the font style in parent component
   };
-  const [isStroke, setIsStroke] = useState(false);
+  const handleStrokeShow = (id: number, isStroke: boolean) => {
+    toggleStroke(id, isStroke);
+  };
+  const handleStrokeHide = (id: number, isStroke: boolean) => {
+    toggleStroke(id, isStroke);
+  };
   return (
-    <AccordionItem value={`item-${textSet.id}`} className="w-full text-[12px]">
+    <AccordionItem value={`item-${index + 1}`} className="w-full text-[12px]">
       <AccordionTrigger>{textSet.text}</AccordionTrigger>
       <AccordionContent className="pt-10 md:pt-20 px-14">
         {/* text heading edit */}
@@ -78,9 +94,9 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
             />
           </div>
           <div className="flex items-center w-[28%] gap-3">
-            {isFront === true ? (
+            {textSet.isFront === true ? (
               <div
-                onClick={() => setIsFront(false)}
+                onClick={() => handleTextBelow(textSet.id, 0, false)}
                 className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
               >
                 <span className="text-black ml-[0.7px]">
@@ -89,7 +105,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               </div>
             ) : (
               <div
-                onClick={() => setIsFront(true)}
+                onClick={() => handleTextUp(textSet.id, 50, true)}
                 className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
               >
                 <span className="text-black ml-[0.7px]"></span>
@@ -205,9 +221,9 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
         {/* stroke color  */}
         <div className="flex justify-between items-center mt-16 ">
           <div className="flex items-center gap-5 w-1/2 ">
-            {isStroke === true ? (
+            {textSet.isStroke === true ? (
               <div
-                onClick={() => setIsStroke(false)}
+                onClick={() => handleStrokeHide(textSet.id, false)}
                 className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
               >
                 <span className="text-black ml-[0.7px]">
@@ -216,7 +232,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
               </div>
             ) : (
               <div
-                onClick={() => setIsStroke(true)}
+                onClick={() => handleStrokeShow(textSet.id, true)}
                 className="w-5 h-5 rounded-sm bg-white flex justify-center items-center"
               >
                 <span className="text-black ml-[0.7px]"></span>
@@ -224,7 +240,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
             )}
             <span>Stroke</span>
           </div>
-          {isStroke === true && (
+          {textSet.isStroke === true && (
             <div className="flex justify-center items-center gap-2  w-1/2">
               <span className="text-nowrap">Stroke Color</span>
               <ColorPicker
@@ -240,7 +256,7 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
         </div>
         <div className="min-h-[100px]">
           {" "}
-          {isStroke === true ? (
+          {textSet?.isStroke === true ? (
             <div className="flex justify-between items-center gap-5 ">
               <div className=" w-1/2">
                 <SliderField
@@ -260,8 +276,8 @@ const TextCustomizer: React.FC<TextCustomizerProps> = ({
                   attribute="strokeOpacity"
                   label="Stroke Opacity"
                   min={0}
-                  max={95}
-                  step={5}
+                  max={1}
+                  step={0.01}
                   currentValue={textSet.strokeOpacity}
                   handleAttributeChange={(attribute, value) =>
                     handleAttributeChange(textSet.id, attribute, value)

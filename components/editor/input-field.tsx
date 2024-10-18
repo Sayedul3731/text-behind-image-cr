@@ -21,7 +21,6 @@ const InputField: React.FC<InputFieldProps> = ({
     const value = event.target.value;
     handleAttributeChange(attribute, value);
   };
-  console.log("current value", currentValue);
   return (
     <div className="flex flex-col items-start">
       <Input
